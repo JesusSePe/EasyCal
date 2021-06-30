@@ -1,0 +1,210 @@
+const Discord = require("discord.js"); // Load Discord JS modules
+const config = require("./config.json"); // Discord bot token
+const client = new Discord.Client(); // Connect to Discord
+const commands = require("./functions/commands.js"); // All commands.
+const schedule = require("./functions/schedule.js"); // Schedule function.
+const Locale = require("./functions/getLocale.js"); // GetLocale function
+const dateFormat = require("dateformat"); // Dateformat package
+require('discord-buttons')(client); // Discord buttons
+const axios = require('axios').default; // library to make API calls
+
+// Multiple variables
+const prefix = "!cal ";
+const ver = "1.5";
+const inv = "";
+const timezones = "";
+
+
+// DB
+const mysql = require('mysql2');
+const pool = mysql.createPool({
+    host: 'localhost',
+    database: 'DB',
+    user: 'user',
+    password: 'pwd',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    supportBigNumbers: true,
+    bigNumberStrings: true
+});
+
+const promisePool = pool.promise();
+
+client.on("ready", () => {
+    let servers = client.guilds.cache.size;
+    client.user.setActivity(`Helping in ${servers} servers!`, { type: "PLAYING" });
+    pool.query("SELECT events.id, name, description, eventDate, user, server_id, channel_id, type, time_difference FROM events join users on users.id = events.user where eventDate > addtime(sysdate(),'-20000')", function (err, rows, fields) {
+        if (err) { return; }
+        rows.forEach(row => {
+            schedule.scheduler(row, client);
+        });
+    })
+    console.log("Ready");
+
+})
+
+// guildCreate
+/* Emitted whenever the client joins a guild.
+PARAMETER    TYPE         DESCRIPTION
+guild        Guild        The created guild    */
+client.on("guildCreate", function (guild) {
+    let servers = client.guilds.cache.size;
+    client.user.setActivity(`Helping in ${servers} servers!`, { type: "PLAYING" });
+});
+
+// guildDelete
+/* Emitted whenever a guild is deleted/left.
+PARAMETER    TYPE         DESCRIPTION
+guild        Guild        The guild that was deleted    */
+client.on("guildDelete", function (guild) {
+    let servers = client.guilds.cache.size;
+    client.user.setActivity(`Helping in ${servers} servers!`, { type: "PLAYING" });
+});
+
+client.on("message", async function (message) {
+    if (message.author.bot) return; // Avoid reading messages from bots
+
+    /*if (message.author.id == 390977127153139733) {
+        message.channel.send("uwu");
+    }*/
+    // React on mention
+    if (/<@!835936611371188224>|<@835936611371188224>/.test(message.content)) {
+        return message.channel.send(Locale.getLocale(lang, "pingBot", `${prefix}`));
+    }
+
+    if (!message.content.startsWith(prefix)) return; // Avoid reading messages that does NOT start with the prefix
+
+
+    // Save user language. In DMs is always in english.
+    try {
+        var langDef = message.guild.preferredLocale.split('-')[0];
+    } catch {
+        var langDef = "en";
+    }
+
+    // If language is not supported, will be changed to english.
+    if (langDef != "en" && langDef != "es" && langDef != "fr" && langDef != "ru") {
+        langDef = "en";
+    }
+
+    // Adding user to DB if not exists
+    let user = message.author.id;
+    let sql = `INSERT INTO users (id, updated_at, created_at, language, time_difference) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE updated_at = ?`;
+    await promisePool.query(sql, [user, new Date, new Date, langDef, 404, new Date], function (error, results, fields) { });
+
+    // Get user language
+    let [rows, fields] = await promisePool.query(`SELECT language FROM users WHERE id = ?`, [user]);
+    let lang = rows[0].language;
+
+    const commandBody = message.content.slice(prefix.length); // Save on commandBody the whole command, without prefix
+    const args = commandBody.split(' '); // Save on args the different parts of the command
+    const command = args.shift().toLowerCase(); // Delete first item on args and convert to lowecase the whole command.
+
+
+
+    // COMMANDS
+    // Ping
+    if (command === "ping") {
+        commands.ping(message, client, lang);
+    }
+
+    // Version
+    else if (command === "version" || command === "ver") {
+        commands.version(message, ver, lang);
+    }
+
+    // Invite command
+    else if (command === "invite") {
+        commands.invite(message, inv, lang);
+    }
+
+    // Language command
+    else if (command === "language") {
+        commands.language(message, args, pool, lang, args);
+    }
+
+    // Add event
+    else if (command === "add") {
+        let [rows, fields] = await promisePool.query(`SELECT time_difference FROM users WHERE id = ?`, [user])
+        if (rows[0].time_difference == 404) {
+            message.channel.send(Locale.getLocale(lang, "Timezone1"))
+            message.channel.awaitMessages(m => m.author.id == message.author.id,
+                { max: 1, time: 60000, error: ['time'] })
+                .then(collected => {
+                    location = collected.first().content.replace(/ /g, "+");
+                    //https://api.ipgeolocation.io/timezone?apiKey=API_KEY&location=London,%20UK
+                    link = "https://api.ipgeolocation.io/timezone?apiKey=¿&location=_".replace(/_/g, location).replace(/¿/g, timezones);
+                    axios({
+                        method: 'get',
+                        url: link
+                    })
+
+                        .then(function (res) {
+                            // Parse
+                            console.log(res.data);
+                            var data = JSON.parse(JSON.stringify(res.data));
+                            try {
+                                var info = data.date_time_wti.split(' '); // Get time difference (+0200)
+                                var difference = info[5].replace(/0/g, ""); // Remove unnecessary characters (+2)
+
+                                let sql = `UPDATE users set time_difference = ${difference} where id = ${message.author.id}`;
+                                pool.query(sql, function (err, result, fields) {
+                                    if (err) {
+                                        return message.channel.send(Locale.getLocale(lang, "internalError"));
+                                    } else {
+                                        message.channel.send(Locale.getLocale(lang, "TimezoneUp"));
+                                        commands.add(message, args, pool, prefix, user, client, lang, "add");
+                                        return;
+                                    }
+                                });
+                            } catch {
+                                return message.channel.send(Locale.getLocale(lang, "TimezoneError"));
+                            }
+                        })
+                        .catch(function () {
+                            return message.channel.send(Locale.getLocale(lang, "TimezoneError"));
+                        })
+                })
+                .catch(collected => {
+                    return message.channel.send(Locale.getLocale(lang, "TimeExpired"));
+                })
+        } else {
+            commands.add(message, args, pool, prefix, user, client, lang, "add");
+        }
+    }
+
+    // Show events
+    else if (command === "events") {
+        commands.events(message, promisePool, lang);
+    }
+
+    // Remove event
+    else if (command === "remove") {
+        commands.remove(message, args, prefix, promisePool, lang);
+    }
+
+    // Update event
+    else if (command === "update") {
+        commands.update(message, args, prefix, promisePool, lang, pool, user, client);
+    }
+
+    // Set timezone
+    else if (command === "timezone") {
+        commands.timezone(message, lang, timezones, pool, args);
+    }
+
+    // Test
+    else if (command === "test") {
+        commands.test(message, client, timezones, lang);
+        //return message.channel.send(lang);
+    }
+
+    // Help
+    else if (command === "help") {
+        commands.help(message, args, prefix, lang);
+    }
+
+});
+
+client.login(config.BOT_TOKEN); // Login into the Discord bot

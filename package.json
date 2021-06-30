@@ -1,0 +1,19 @@
+{
+  "name": "easycal",
+  "version": "1.5",
+  "description": "Calendar bot for Discord",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "JesusSePe",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "dateformat": "^4.5.1",
+    "discord-buttons": "^3.2.1",
+    "discord.js": "^12.5.1",
+    "mysql2": "^2.2.5",
+    "node-schedule": "^2.0.0"
+  }
+}

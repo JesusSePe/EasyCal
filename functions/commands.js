@@ -11,7 +11,7 @@ module.exports = {
     ping: async function (message, client, lang) {
         /*const timeTaken = Math.round(client.ws.ping);
         return message.channel.send(Locale.getLocale(lang, "ping", `${timeTaken}`));*/
-        const sentMsg = await message.channel.send('Pinging...');
+        const sentMsg = await message.channel.send('Ping...');
         return sentMsg.edit(Locale.getLocale(lang, "ping", `${sentMsg.createdTimestamp - (message.editedTimestamp || message.createdTimestamp)}`));
     },
 

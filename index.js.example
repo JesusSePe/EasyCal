@@ -64,12 +64,8 @@ client.on("guildDelete", function (guild) {
 
 client.on("message", async function (message) {
     if (message.author.bot) return; // Avoid reading messages from bots
-
-    /*if (message.author.id == 390977127153139733) {
-        message.channel.send("uwu");
-    }*/
     // React on mention
-    if (/<@!835936611371188224>|<@835936611371188224>/.test(message.content)) {
+    if (/<@!/*BOT ID*/>|<@BOT ID>/.test(message.content)) {
         return message.channel.send(Locale.getLocale(lang, "pingBot", `${prefix}`));
     }
 

@@ -43,7 +43,7 @@ module.exports = {
         }
     },
 
-    /*##### TIMEZONES #####*/
+    /*##### TIMEZONE #####*/
     timezone: async function (message, lang, timezones, pool, args) {
         if (typeof args[0] == "undefined") {
             message.channel.send(Locale.getLocale(lang, "Timezone1"))
@@ -280,7 +280,7 @@ module.exports = {
                     message.channel.send(Locale.getLocale(lang, "rmEventInvalidArgs", `${arg}`, `${prefix}`));
                 } else {
                     try {
-                        let sql = `DELETE FROM events WHERE id = ?`;
+                        let sql = `DELETE FROM events WHERE id = ? and user = ${message.author.id}`;
                         promisePool.query(sql, Number(arg), function (error, results, fields) { });
                         schedule.cancelJob(arg);
                         message.channel.send(Locale.getLocale(lang, "rmEventSuccess", `${arg}`));

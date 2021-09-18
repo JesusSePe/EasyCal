@@ -2,7 +2,6 @@ const Discord = require("discord.js");
 var dateFormat = require("dateformat"); // Dateformat package
 const schedule = require("./schedule.js"); // Schedule function.
 const Locale = require("./getLocale.js"); // GetLocale function
-const { MessageButton, MessageActionRow } = require("discord-buttons");
 const axios = require('axios').default; // library to make API calls
 
 
@@ -22,7 +21,8 @@ module.exports = {
 
     /*##### INVITE #####*/
     invite: function (message, inv, lang) {
-        message.channel.send(new Discord.MessageEmbed().addField(Locale.getLocale(lang, "inv"), Locale.getLocale(lang, "invLink", `${inv}`)));
+        invEmbed = new Discord.MessageEmbed().addField(Locale.getLocale(lang, "inv"), Locale.getLocale(lang, "invLink", `${inv}`))
+        message.channel.send({ embeds: [invEmbed] });
     },
 
     /*##### LANGUAGE #####*/
@@ -47,8 +47,9 @@ module.exports = {
     timezone: async function (message, lang, timezones, pool, args) {
         if (typeof args[0] == "undefined") {
             message.channel.send(Locale.getLocale(lang, "Timezone1"))
-            message.channel.awaitMessages(m => m.author.id == message.author.id,
-                { max: 1, time: 60000, error: ['time'] })
+            const filter = m => m.author.id == message.author.id;
+            message.channel.awaitMessages(
+                { filter, max: 1, time: 60000, error: ['time'] })
                 .then(collected => {
                     location = collected.first().content.replace(/ /g, "+");
                     //https://api.ipgeolocation.io/timezone?apiKey=API_KEY&location=London,%20UK
@@ -132,14 +133,16 @@ module.exports = {
                 // Get description message
                 await message.channel.send(Locale.getLocale(lang, "eventDesc"));
 
-                message.channel.awaitMessages(m => m.author.id == message.author.id,
-                    { max: 1, time: 60000, errors: ['time'] })
+                const filter = m => m.author.id == message.author.id;
+
+                message.channel.awaitMessages(
+                    {filter, max: 1, time: 60000, errors: ['time'] })
                     .then(collected => {
                         var desc = collected.first().content; // Description
                         message.channel.send(Locale.getLocale(lang, "eventDate"));
                         // Get event date message
-                        message.channel.awaitMessages(m => m.author.id == message.author.id,
-                            { max: 1, time: 60000, error: ['time'] })
+                        message.channel.awaitMessages(
+                            {filter, max: 1, time: 60000, error: ['time'] })
                             .then(collected2 => {
                                 try {
                                     if (Date.parse(collected2.first().content) != 'NaN') {
@@ -221,11 +224,11 @@ module.exports = {
 
         }
     },
-
+    
     /*##### EVENTS #####*/
     events: async function (message, promisePool, lang) {
         let page = 1;
-        if (message.channel.type != "dm") {
+        if (message.channel.type != "DM") {
             var eventsEmbed = new Discord.MessageEmbed()
                 .setColor('#0099ff')
                 .setTitle(Locale.getLocale(lang, "Events"))
@@ -233,7 +236,7 @@ module.exports = {
                 .setDescription(Locale.getLocale(lang, "ServerTitle"))
                 .setFooter(Locale.getLocale(lang, "EventsFooter"));
             try {
-                var [results, fields] = await promisePool.query(`SELECT * FROM events WHERE server_id = ? order by eventDate`, [message.guild.id]);
+                var [results, fields] = await promisePool.query(`SELECT * FROM events WHERE server_id = ? AND eventDate > addtime(sysdate(),'-20000') order by eventDate`, [message.guild.id]);
             } catch (err) {
                 console.log(err);
             }
@@ -243,7 +246,7 @@ module.exports = {
             if (results.length == 0) {
                 message.channel.send(Locale.getLocale(lang, "NoEvents"))
             } else {
-                message.channel.send(eventsEmbed);
+                message.channel.send({ embeds: [eventsEmbed] });
             }
         }
         else {
@@ -254,7 +257,7 @@ module.exports = {
                 .setDescription(Locale.getLocale(lang, "PersonalEvents"))
                 .setFooter(Locale.getLocale(lang, "EventsFooter"));
             try {
-                var [results, fields] = await promisePool.query(`SELECT * FROM events WHERE user = ? AND server_id is null order by eventDate`, [message.author.id]);
+                var [results, fields] = await promisePool.query(`SELECT * FROM events WHERE user = ? AND server_id is null AND eventDate > addtime(sysdate(),'-20000') order by eventDate`, [message.author.id]);
             } catch (err) {
                 console.log(err);
             }
@@ -264,7 +267,7 @@ module.exports = {
             if (results.length == 0) {
                 message.channel.send(Locale.getLocale(lang, "NoEvents"))
             } else {
-                message.channel.send(eventsEmbed);
+                message.channel.send({ embeds: [eventsEmbed] });
             }
         }
     },
@@ -311,39 +314,6 @@ module.exports = {
         }
     },
 
-
-    /*##### TEST #####*/
-    test: async function (message, client, timezones, lang) {
-        let db = ['Hello', 'World', 'uwu'];
-
-        let button0 = new MessageButton()
-            .setLabel("opt1")
-            .setStyle("blurple")
-            .setID("00");
-
-        let button1 = new MessageButton()
-            .setLabel("opt2")
-            .setStyle("blurple")
-            .setID("01");
-
-        let buttonRow = new MessageActionRow()
-            .addComponent(button0)
-            .addComponent(button1)
-
-
-
-        let m = await message.channel.send("Choose an hour", { components: buttonRow });
-
-        client.on('clickButton', async (button) => {
-
-            console.log(button);
-
-            m.edit(`${button.id}`);
-            button.defer();
-        });
-    },
-
-
     /*##### HELP #####*/
     help: function (message, args, prefix, lang) {
         try {
@@ -357,7 +327,9 @@ module.exports = {
                         { name: `${prefix} ping`, value: Locale.getLocale(lang, "HelpPing") },
                         { name: `${prefix} help`, value: Locale.getLocale(lang, "HelpHelp") },
                         { name: `${prefix} invite`, value: Locale.getLocale(lang, "HelpInv") },
-                        { name: `${prefix} version`, value: Locale.getLocale(lang, "HelpVer") }
+                        { name: `${prefix} version`, value: Locale.getLocale(lang, "HelpVer") },
+                        { name: `${prefix} language`, value: Locale.getLocale(lang, "HelpLang", prefix) },
+                        { name: `${prefix} timezone`, value: Locale.getLocale(lang, "HelpTimezone", prefix) },
                     )
                     .setTimestamp()
                     .setFooter('easyCal');
@@ -370,6 +342,8 @@ module.exports = {
                     .setDescription(Locale.getLocale(lang, "Events"))
                     .addFields(
                         { name: `${prefix} add`, value: Locale.getLocale(lang, "HelpAdd") },
+                        { name: `${prefix} update`, value: Locale.getLocale(lang, "HelpUpdate", prefix) },
+                        { name: `${prefix} remove`, value: Locale.getLocale(lang, "HelpRemove") },
                         { name: `${prefix} events`, value: Locale.getLocale(lang, "HelpEvents") }
                     )
                     .setTimestamp()
@@ -411,6 +385,6 @@ module.exports = {
                 .setTimestamp()
                 .setFooter('easyCal');
         }
-        message.channel.send(helpEmbed);
+        message.channel.send({ embeds: [helpEmbed] });
     }
 }

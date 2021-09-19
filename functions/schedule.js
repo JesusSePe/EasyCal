@@ -15,8 +15,7 @@ module.exports = {
             console.log("[OK3]", row.id, dateFormat(row.eventDate, 'yyyy'), (dateFormat(row.eventDate, 'm') - 1), dateFormat(row.eventDate, 'd'), (Number(dateFormat(row.eventDate, 'H')) + Number(row.time_difference)), dateFormat(row.eventDate, 'M'), dateFormat(row.eventDate, 's'));
             var date = new Date(dateFormat(row.eventDate, 'yyyy'), (dateFormat(row.eventDate, 'm') - 1), dateFormat(row.eventDate, 'd'), (Number(dateFormat(row.eventDate, 'H')) + Number(row.time_difference)), dateFormat(row.eventDate, 'M'), dateFormat(row.eventDate, 's'));
         }
-        //console.log("[OK]",row.id, dateFormat(row.eventDate, 'yyyy'), (dateFormat(row.eventDate, 'm')-1), dateFormat(row.eventDate, 'd'), dateFormat(row.eventDate, 'H'), dateFormat(row.eventDate, 'M'), dateFormat(row.eventDate, 's'));
-        //var date = new Date(dateFormat(row.eventDate, 'yyyy'), (dateFormat(row.eventDate, 'm')-1), dateFormat(row.eventDate, 'd'), dateFormat(row.eventDate, 'H'), dateFormat(row.eventDate, 'M'), dateFormat(row.eventDate, 's'));
+        
         schedule.scheduleJob(row.id, date, function () {
             let description = row.description;
             if (row.type == "server") {

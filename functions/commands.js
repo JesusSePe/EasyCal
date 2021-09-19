@@ -60,7 +60,6 @@ module.exports = {
                         url: link
                     }).then(function (res) {
                         // Parse
-                        console.log(res.data);
                         var data = JSON.parse(JSON.stringify(res.data));
                         try {
                             var info = data.date_time_wti.split(' '); // Get time difference (+0200)
@@ -275,7 +274,6 @@ module.exports = {
     /*##### REMOVE EVENT #####*/
     remove: async function (message, args, prefix, promisePool, lang) {
         if (args[0] == null) {
-            console.log("Args[0] is null");
             message.channel.send(Locale.getLocale(lang, "rmEventNoArgs", `${prefix}`));
         } else {
             args.forEach(function(arg){
@@ -298,7 +296,6 @@ module.exports = {
     /*##### UPDATE EVENT #####*/
     update: async function (message, args, prefix, promisePool, lang, pool, user, client) {
         if (args[0] == null) {
-            console.log("Args[0] is null");
             message.channel.send(Locale.getLocale(lang, "upEventNoArgs", `${prefix}`));
         } else {
             if (isNaN(args[0])) {

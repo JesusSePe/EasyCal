@@ -28,8 +28,6 @@ const promisePool = pool.promise();
 client.on("ready", () => {
     init.guilds(client); // Display the amount of servers the bot is in.
     init.events(pool, schedule, client); // Load all the events on start
-    console.log("Ready");
-
 })
 
 // guildCreate
@@ -74,8 +72,6 @@ client.on("messageCreate", async function (message) {
 
 
     // React on mention
-    console.log(`<@!${config.botID}>`);
-    console.log(message.content);
     if (message.content == (`<@!${config.botID}>`) || message.content == (`<@${config.botID}>`)) {
         return message.channel.send(Locale.getLocale(lang, "pingBot", prefix, prefix));
     }
@@ -127,7 +123,6 @@ client.on("messageCreate", async function (message) {
 
                         .then(function (res) {
                             // Parse
-                            console.log(res.data);
                             var data = JSON.parse(JSON.stringify(res.data));
                             try {
                                 var info = data.date_time_wti.split(' '); // Get time difference (+0200)
@@ -195,41 +190,28 @@ var server = http.createServer(app);
 
 app.get('/cal/update_data', function(req, res){
     try {
-        console.log('Hey!');
         try {
             schedule.cancelJob(req.query.id);
-            console.log('Task succesfully cancelled');
         } catch {}
         schedule.scheduler(req.query, client);
-        console.log('Task succesfully created');
         res.send('Roger that');
-        console.log('Cool and good');
         
     } catch {
-        console.log('KO');
         res.send('Error');
     }
 });
 
 app.get('/cal/remove', function(req, res){
     try {
-        console.log('Heya!');
         try{
             schedule.cancelJob(req.query.id);
-            console.log('Task succesfully cancelled');
         }catch{}
         res.send('Roger that');
-        console.log('Cool and removed');
     } catch {
-        console.log('KO2');
         res.send('Error');
     }
 });
 
 server.listen(3000, 'localhost');
-server.on('listening', function() {
-    console.log('Express server started on port %s at %s', server.address().port, server.address().address);
-
-});
 
 client.login(config.BOT_TOKEN); // Login into the Discord bot

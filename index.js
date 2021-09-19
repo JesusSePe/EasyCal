@@ -1,10 +1,11 @@
 const {Client, Intents} = require('discord.js'); // Load Discord JS modules
-const config = require("./config.json"); // Discord bot token
+const config = require("./config.json"); // Discord bot sensible variables
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES], partials: ["CHANNEL"] }); // Connect to Discord
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const commands = require("./functions/commands.js"); // All commands.
 const schedule = require("./functions/schedule.js"); // Schedule function.
 const Locale = require("./functions/getLocale.js"); // GetLocale function
+const init = require("./functions/initializer.js"); // Bot initialization functions
 const dateFormat = require("dateformat"); // Dateformat package
 const axios = require('axios').default; // library to make API calls
 var express = require('express'); // Node server (to listen on a certain port)
@@ -19,31 +20,14 @@ const timezones = config.timezones;
 
 
 // DB
-const mysql = require('mysql2');
 const { networkInterfaces } = require("os");
-const pool = mysql.createPool({
-    host: config.dbhost,
-    database: config.database,
-    user: config.dbuser,
-    password: config.dbpassword,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-    supportBigNumbers: true,
-    bigNumberStrings: true
-});
+const pool = init.pool;
 
 const promisePool = pool.promise();
 
 client.on("ready", () => {
-    let servers = client.guilds.cache.size;
-    client.user.setActivity(`Helping in ${servers} servers!`, { type: "PLAYING" });
-    pool.query("SELECT events.id, name, description, eventDate, user, server_id, channel_id, type, time_difference FROM events join users on users.id = events.user where eventDate > addtime(sysdate(),'-20000')", function (err, rows, fields) {
-        if (err) { return; }
-        rows.forEach(row => {
-            schedule.scheduler(row, client);
-        });
-    })
+    init.guilds(client); // Display the amount of servers the bot is in.
+    init.events(pool, schedule, client); // Load all the events on start
     console.log("Ready");
 
 })
@@ -53,17 +37,7 @@ client.on("ready", () => {
 PARAMETER    TYPE         DESCRIPTION
 guild        Guild        The created guild    */
 client.on("guildCreate", function (guild) {
-    let servers = client.guilds.cache.size;
-    client.user.setActivity(`Helping in ${servers} servers!`, { type: "PLAYING" });
-    try {
-        const sCommands = new SlashCommandBuilder()
-            .setName('ping')
-            .setDescription('Returns ping between the user and bot in ms.');
-    } catch {
-        console.log('Slash commands not allowed');
-    }
-    
-
+    init.guilds(client); // Update the amount of servers the bot is in (status)   
 });
 
 // guildDelete
@@ -71,8 +45,7 @@ client.on("guildCreate", function (guild) {
 PARAMETER    TYPE         DESCRIPTION
 guild        Guild        The guild that was deleted    */
 client.on("guildDelete", function (guild) {
-    let servers = client.guilds.cache.size;
-    client.user.setActivity(`Helping in ${servers} servers!`, { type: "PLAYING" });
+    init.guilds(client); // Update the amount of servers the bot is in (status)
 });
 
 client.on("messageCreate", async function (message) {
@@ -206,12 +179,6 @@ client.on("messageCreate", async function (message) {
         commands.timezone(message, lang, timezones, pool, args);
     }
 
-    // Test
-    else if (command === "test") {
-        commands.test(message, client, timezones, lang);
-        //return message.channel.send(lang);
-    }
-
     // Help
     else if (command === "help") {
         commands.help(message, args, prefix, lang);
@@ -264,8 +231,5 @@ server.on('listening', function() {
     console.log('Express server started on port %s at %s', server.address().port, server.address().address);
 
 });
-
-
-
 
 client.login(config.BOT_TOKEN); // Login into the Discord bot

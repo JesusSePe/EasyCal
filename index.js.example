@@ -65,7 +65,7 @@ client.on("guildDelete", function (guild) {
 client.on("message", async function (message) {
     if (message.author.bot) return; // Avoid reading messages from bots
     // React on mention
-    if (/<@!/*BOT ID*/>|<@BOT ID>/.test(message.content)) {
+    if (/<@! id of your bot here >|<@BOT ID>/.test(message.content)) {
         return message.channel.send(Locale.getLocale(lang, "pingBot", `${prefix}`));
     }
 

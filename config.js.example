@@ -1,3 +1,12 @@
 {
-    "BOT_TOKEN": "DISCORD BOT TOKEN"
+    "BOT_TOKEN": "DISCORD BOT TOKEN",
+    "botPrefix": "bot prefix",
+    "botVer": "bot version",
+    "inv": "default invite link",
+    "timezones": "timezones api key", // (https://ipgeolocation.io)
+    "botID": "your bot id",
+    "dbhost": "database host",
+    "database": "database name",
+    "dbuser": "database username",
+    "dbpassword": "user password for database"
 }

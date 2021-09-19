@@ -1,27 +1,31 @@
-const Discord = require("discord.js"); // Load Discord JS modules
+const {Client, Intents} = require('discord.js'); // Load Discord JS modules
 const config = require("./config.json"); // Discord bot token
-const client = new Discord.Client(); // Connect to Discord
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES], partials: ["CHANNEL"] }); // Connect to Discord
+const { SlashCommandBuilder } = require('@discordjs/builders');
 const commands = require("./functions/commands.js"); // All commands.
 const schedule = require("./functions/schedule.js"); // Schedule function.
 const Locale = require("./functions/getLocale.js"); // GetLocale function
 const dateFormat = require("dateformat"); // Dateformat package
-require('discord-buttons')(client); // Discord buttons
 const axios = require('axios').default; // library to make API calls
+var express = require('express'); // Node server (to listen on a certain port)
+var http = require('http'); // Extra module for our server
+
 
 // Multiple variables
-const prefix = "!cal ";
-const ver = "1.5";
-const inv = "";
-const timezones = "";
+const prefix = config.botPrefix;
+const ver = config.botVer;
+const inv = config.inv;
+const timezones = config.timezones;
 
 
 // DB
 const mysql = require('mysql2');
+const { networkInterfaces } = require("os");
 const pool = mysql.createPool({
-    host: 'localhost',
-    database: 'DB',
-    user: 'user',
-    password: 'pwd',
+    host: config.dbhost,
+    database: config.database,
+    user: config.dbuser,
+    password: config.dbpassword,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
@@ -51,6 +55,15 @@ guild        Guild        The created guild    */
 client.on("guildCreate", function (guild) {
     let servers = client.guilds.cache.size;
     client.user.setActivity(`Helping in ${servers} servers!`, { type: "PLAYING" });
+    try {
+        const sCommands = new SlashCommandBuilder()
+            .setName('ping')
+            .setDescription('Returns ping between the user and bot in ms.');
+    } catch {
+        console.log('Slash commands not allowed');
+    }
+    
+
 });
 
 // guildDelete
@@ -62,15 +75,8 @@ client.on("guildDelete", function (guild) {
     client.user.setActivity(`Helping in ${servers} servers!`, { type: "PLAYING" });
 });
 
-client.on("message", async function (message) {
+client.on("messageCreate", async function (message) {
     if (message.author.bot) return; // Avoid reading messages from bots
-    // React on mention
-    if (/<@!/*BOT ID*/>|<@BOT ID>/.test(message.content)) {
-        return message.channel.send(Locale.getLocale(lang, "pingBot", `${prefix}`));
-    }
-
-    if (!message.content.startsWith(prefix)) return; // Avoid reading messages that does NOT start with the prefix
-
 
     // Save user language. In DMs is always in english.
     try {
@@ -92,6 +98,16 @@ client.on("message", async function (message) {
     // Get user language
     let [rows, fields] = await promisePool.query(`SELECT language FROM users WHERE id = ?`, [user]);
     let lang = rows[0].language;
+
+
+    // React on mention
+    console.log(`<@!${config.botID}>`);
+    console.log(message.content);
+    if (message.content == (`<@!${config.botID}>`) || message.content == (`<@${config.botID}>`)) {
+        return message.channel.send(Locale.getLocale(lang, "pingBot", prefix, prefix));
+    }
+
+    if (!message.content.startsWith(prefix)) return; // Avoid reading messages that does NOT start with the prefix
 
     const commandBody = message.content.slice(prefix.length); // Save on commandBody the whole command, without prefix
     const args = commandBody.split(' '); // Save on args the different parts of the command
@@ -202,5 +218,54 @@ client.on("message", async function (message) {
     }
 
 });
+
+/**############################ */
+/**--SERVER TO LISTEN ON PORT-- */
+/**############################ */
+
+var app = express();
+var server = http.createServer(app);
+
+app.get('/cal/update_data', function(req, res){
+    try {
+        console.log('Hey!');
+        try {
+            schedule.cancelJob(req.query.id);
+            console.log('Task succesfully cancelled');
+        } catch {}
+        schedule.scheduler(req.query, client);
+        console.log('Task succesfully created');
+        res.send('Roger that');
+        console.log('Cool and good');
+        
+    } catch {
+        console.log('KO');
+        res.send('Error');
+    }
+});
+
+app.get('/cal/remove', function(req, res){
+    try {
+        console.log('Heya!');
+        try{
+            schedule.cancelJob(req.query.id);
+            console.log('Task succesfully cancelled');
+        }catch{}
+        res.send('Roger that');
+        console.log('Cool and removed');
+    } catch {
+        console.log('KO2');
+        res.send('Error');
+    }
+});
+
+server.listen(3000, 'localhost');
+server.on('listening', function() {
+    console.log('Express server started on port %s at %s', server.address().port, server.address().address);
+
+});
+
+
+
 
 client.login(config.BOT_TOKEN); // Login into the Discord bot

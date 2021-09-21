@@ -252,7 +252,7 @@ module.exports = {
             var eventsEmbed = new Discord.MessageEmbed()
                 .setColor('#0099ff')
                 .setTitle(Locale.getLocale(lang, "Events"))
-                .setURL('https://telek.tk')
+                .setURL('https://telek.tk/dashboard/dm')
                 .setDescription(Locale.getLocale(lang, "PersonalEvents"))
                 .setFooter(Locale.getLocale(lang, "EventsFooter"));
             try {
@@ -318,7 +318,7 @@ module.exports = {
                 var helpEmbed = new Discord.MessageEmbed()
                     .setColor('#0099ff')
                     .setTitle('easyCal')
-                    .setURL('https://telek.tk')
+                    .setURL('https://telek.tk/docs')
                     .setDescription(Locale.getLocale(lang, "Utilities"))
                     .addFields(
                         { name: `${prefix} ping`, value: Locale.getLocale(lang, "HelpPing") },
@@ -335,7 +335,7 @@ module.exports = {
                 var helpEmbed = new Discord.MessageEmbed()
                     .setColor('#0099ff')
                     .setTitle('easyCal')
-                    .setURL('https://telek.tk')
+                    .setURL('https://telek.tk/docs')
                     .setDescription(Locale.getLocale(lang, "Events"))
                     .addFields(
                         { name: `${prefix} add`, value: Locale.getLocale(lang, "HelpAdd") },
@@ -350,7 +350,7 @@ module.exports = {
                 var helpEmbed = new Discord.MessageEmbed()
                     .setColor('#0099ff')
                     .setTitle('easyCal')
-                    .setURL('https://telek.tk')
+                    .setURL('https://telek.tk/docs')
                     .setDescription('*Un comando para gobernarlos a todos*')
                     .addFields(
                         { name: `${prefix} ping`, value: Locale.getLocale(lang, "HelpPing") },
@@ -372,7 +372,7 @@ module.exports = {
             var helpEmbed = new Discord.MessageEmbed()
                 .setColor('#0099ff')
                 .setTitle('easyCal')
-                .setURL('https://telek.tk')
+                .setURL('https://telek.tk/docs')
                 .setDescription(Locale.getLocale(lang, "HelpWelcome"))
                 .addFields(
                     { name: Locale.getLocale(lang, "Utilities"), value: `${prefix} help utilities` },

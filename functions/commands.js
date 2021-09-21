@@ -231,7 +231,7 @@ module.exports = {
             var eventsEmbed = new Discord.MessageEmbed()
                 .setColor('#0099ff')
                 .setTitle(Locale.getLocale(lang, "Events"))
-                .setURL('https://telek.tk')
+                .setURL(`https://telek.tk/dashboard/${message.guild.id}`)
                 .setDescription(Locale.getLocale(lang, "ServerTitle"))
                 .setFooter(Locale.getLocale(lang, "EventsFooter"));
             try {

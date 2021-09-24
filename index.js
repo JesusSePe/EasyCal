@@ -6,10 +6,10 @@ const commands = require("./functions/commands.js"); // All commands.
 const schedule = require("./functions/schedule.js"); // Schedule function.
 const Locale = require("./functions/getLocale.js"); // GetLocale function
 const init = require("./functions/initializer.js"); // Bot initialization functions
-const dateFormat = require("dateformat"); // Dateformat package
 const axios = require('axios').default; // library to make API calls
 var express = require('express'); // Node server (to listen on a certain port)
 var http = require('http'); // Extra module for our server
+const fs = require('fs');
 
 
 // Multiple variables
@@ -21,6 +21,7 @@ const timezones = config.timezones;
 
 // DB
 const { networkInterfaces } = require("os");
+const { slash } = require('./functions/initializer.js');
 const pool = init.pool;
 
 const promisePool = pool.promise();
@@ -28,6 +29,14 @@ const promisePool = pool.promise();
 client.on("ready", () => {
     init.guilds(client); // Display the amount of servers the bot is in.
     init.events(pool, schedule, client); // Load all the events on start
+    
+    
+    // Slash commands initialization
+    const { REST } = require('@discordjs/rest');
+    const { Routes } = require('discord-api-types/v9');
+
+    const rest = new REST({ version: '9' }).setToken(config.BOT_TOKEN);
+    init.slashLoader(Routes, config, rest);
 })
 
 // guildCreate
@@ -35,7 +44,7 @@ client.on("ready", () => {
 PARAMETER    TYPE         DESCRIPTION
 guild        Guild        The created guild    */
 client.on("guildCreate", function (guild) {
-    init.guilds(client); // Update the amount of servers the bot is in (status)   
+    init.guilds(client); // Update the amount of servers the bot is in (status)
 });
 
 // guildDelete
@@ -44,6 +53,22 @@ PARAMETER    TYPE         DESCRIPTION
 guild        Guild        The guild that was deleted    */
 client.on("guildDelete", function (guild) {
     init.guilds(client); // Update the amount of servers the bot is in (status)
+});
+
+
+// Control interactions (Slash commands)
+client.on('interactionCreate', interaction => {
+	if (!interaction.isCommand()) return; // Avoid those interactions that are not commands
+
+	if (interaction.commandName === 'ping') {
+        commands.ping(interaction, 'en');
+	} else if (interaction.commandName === 'version'){
+        commands.version(interaction, ver, 'en');
+    } else if (interaction.commandName === 'events'){
+        commands.events(interaction, promisePool, 'en');
+    } else if (interaction.commandName === 'invite'){
+        commands.invite(interaction, inv, 'en');
+    }
 });
 
 client.on("messageCreate", async function (message) {
@@ -87,12 +112,12 @@ client.on("messageCreate", async function (message) {
     // COMMANDS
     // Ping
     if (command === "ping") {
-        commands.ping(message, client, lang);
+        commands.ping(message, lang);
     }
 
     // Version
     else if (command === "version" || command === "ver") {
-        commands.version(message, ver, lang);
+        commands.version(message, ver, lang)
     }
 
     // Invite command

@@ -9,8 +9,10 @@
   "author": "JesusSePe",
   "license": "ISC",
   "dependencies": {
+    "@discordjs/rest": "^0.1.0-canary.0",
     "axios": "^0.21.1",
     "dateformat": "^4.5.1",
+    "discord-api-types": "^0.20.2",
     "discord.js": "^13.1.0",
     "express": "^4.17.1",
     "mysql2": "^2.2.5",

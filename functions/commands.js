@@ -7,22 +7,37 @@ const axios = require('axios').default; // library to make API calls
 
 module.exports = {
     /*##### PING #####*/
-    ping: async function (message, client, lang) {
-        /*const timeTaken = Math.round(client.ws.ping);
-        return message.channel.send(Locale.getLocale(lang, "ping", `${timeTaken}`));*/
-        const sentMsg = await message.channel.send('Ping...');
-        return sentMsg.edit(Locale.getLocale(lang, "ping", `${sentMsg.createdTimestamp - (message.editedTimestamp || message.createdTimestamp)}`));
+    ping: async function (message, lang) {
+        try {
+            message.isCommand();
+            const sentMsg = await message.channel.send('Ping...');
+            message.reply(Locale.getLocale(lang, "ping", `${sentMsg.createdTimestamp - (message.editedTimestamp || message.createdTimestamp)}`));
+            sentMsg.delete();
+        } catch {
+            const sentMsg = await message.channel.send('Ping...');
+            return sentMsg.edit(Locale.getLocale(lang, "ping", `${sentMsg.createdTimestamp - (message.editedTimestamp || message.createdTimestamp)}`));
+        }
+        
     },
 
     /*##### VERSION #####*/
     version: function (message, ver, lang) {
-        return message.channel.send(Locale.getLocale(lang, "ver", `${ver}`));
+        try {
+            message.reply(Locale.getLocale(lang, "ver", `${ver}`));
+        } catch{
+            return message.channel.send(Locale.getLocale(lang, "ver", `${ver}`));
+        }
+        
     },
 
     /*##### INVITE #####*/
     invite: function (message, inv, lang) {
         invEmbed = new Discord.MessageEmbed().addField(Locale.getLocale(lang, "inv"), Locale.getLocale(lang, "invLink", `${inv}`))
-        message.channel.send({ embeds: [invEmbed] });
+        try {
+            message.reply({ embeds: [invEmbed] });
+        } catch {
+            message.channel.send({ embeds: [invEmbed] });
+        }
     },
 
     /*##### LANGUAGE #####*/
@@ -242,12 +257,29 @@ module.exports = {
             results.forEach(row => {
                 eventsEmbed.addField(`id: ${row.id} ${dateFormat(row.eventDate, 'paddedShortDate')}: ${row.name}`, `${row.description}`);
             });
+            // IF there are no events
             if (results.length == 0) {
-                message.channel.send(Locale.getLocale(lang, "NoEvents"))
+                // If message is a slash command
+                try {
+                    message.isCommand();
+                    message.reply(Locale.getLocale(lang, "NoEvents"));
+                // If message is a normal command
+                } catch{
+                    message.channel.send(Locale.getLocale(lang, "NoEvents"))
+                }
+            // If there are events
             } else {
-                message.channel.send({ embeds: [eventsEmbed] });
+                // If message is a slash command
+                try {
+                    message.isCommand();
+                    message.reply({ embeds: [eventsEmbed] });
+                // If message is a normal command
+                } catch{
+                    message.channel.send({ embeds: [eventsEmbed] })
+                }
             }
         }
+        // In case message is sent from DMs
         else {
             var eventsEmbed = new Discord.MessageEmbed()
                 .setColor('#0099ff')
@@ -264,9 +296,23 @@ module.exports = {
                 eventsEmbed.addField(`${dateFormat(row.eventDate, 'paddedShortDate')}: ${row.name}`, `${row.description}`);
             });
             if (results.length == 0) {
-                message.channel.send(Locale.getLocale(lang, "NoEvents"))
+                // If message is a slash command
+                try {
+                    message.isCommand();
+                    message.reply(Locale.getLocale(lang, "NoEvents"));
+                // If message is a normal command
+                } catch{
+                    message.channel.send(Locale.getLocale(lang, "NoEvents"))
+                }
             } else {
-                message.channel.send({ embeds: [eventsEmbed] });
+                // If message is a slash command
+                try {
+                    message.isCommand();
+                    message.reply({ embeds: [eventsEmbed] });
+                // If message is a normal command
+                } catch{
+                    message.channel.send({ embeds: [eventsEmbed] })
+                }
             }
         }
     },

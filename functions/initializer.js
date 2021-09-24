@@ -29,5 +29,24 @@ module.exports = {
                 schedule.scheduler(row, client);
             });
         })
+    },
+
+    /*##### Load guild slash commands #####*/
+    slashLoader: async function(Routes, config, rest){
+        try {
+            console.log('Started refreshing application (/) commands.');
+            await rest.put(
+                Routes.applicationCommands(config.botID),
+                //{body : commands},
+                {body: [{name: 'events', description: 'Shows all events on this server or DM'},
+                        {name: 'invite', description: 'Returns an embed with a link to invite the bot to a new server'},
+                        {name: 'ping', description: 'Get latency between users and bot'},
+                        {name: 'version', description: 'Returns the current bot version'}]},
+            );
+            console.log('Successfully reloaded application (/) commands.');
+        } catch (error) {
+            console.error(error);
+        }
     }
+
 }

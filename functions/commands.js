@@ -23,6 +23,7 @@ module.exports = {
     /*##### VERSION #####*/
     version: function (message, ver, lang) {
         try {
+            message.isCommand();
             message.reply(Locale.getLocale(lang, "ver", `${ver}`));
         } catch{
             return message.channel.send(Locale.getLocale(lang, "ver", `${ver}`));
@@ -34,6 +35,7 @@ module.exports = {
     invite: function (message, inv, lang) {
         invEmbed = new Discord.MessageEmbed().addField(Locale.getLocale(lang, "inv"), Locale.getLocale(lang, "invLink", `${inv}`))
         try {
+            message.isCommand();
             message.reply({ embeds: [invEmbed] });
         } catch {
             message.channel.send({ embeds: [invEmbed] });

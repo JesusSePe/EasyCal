@@ -373,8 +373,8 @@ module.exports = {
                         { name: `${prefix} help`, value: Locale.getLocale(lang, "HelpHelp") },
                         { name: `${prefix} invite`, value: Locale.getLocale(lang, "HelpInv") },
                         { name: `${prefix} version`, value: Locale.getLocale(lang, "HelpVer") },
-                        { name: `${prefix} language`, value: Locale.getLocale(lang, "HelpLang", prefix) },
-                        { name: `${prefix} timezone`, value: Locale.getLocale(lang, "HelpTimezone", prefix) },
+                        { name: `${prefix} language`, value: Locale.getLocale(lang, "HelpLang", prefix, prefix) },
+                        { name: `${prefix} timezone`, value: Locale.getLocale(lang, "HelpTimezone", prefix, prefix) },
                     )
                     .setTimestamp()
                     .setFooter('easyCal');

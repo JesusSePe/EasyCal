@@ -126,7 +126,7 @@ const strings = {
       HelpTimezone: "Mets a jour la timezone. Pour le faire, utilisez `%VAR% update votre_timezone` (format ville pays, ex: Paris france).",
       HelpAdd: "Ajoute un nouveau évenement dans la base de donnée. Premièrement, envoyez un message avec le nom voulue de l'évenement, puis la description, et enfin la date de l'évenement. Vous pouvez aussi indiqué une heure. La date et l'heure sera enregistrés en UTC, donc prévoyer ca pour ne pas avoir de décalage ;).",
       HelpEvents: "Retourne tous les évenements de ce serveur ou personel.",
-      HelpUpdate: "Mets à jour un évènement spécifié. Exemple: `%VAR% update 11 fête!` mets à jour l'évènement avec l'ID 11 en changant son nom en "fête!". Après ça le bot vous demandera si vous voulez mettre a jour la descriptions et/ou la date.",
+      HelpUpdate: "Mets à jour un évènement spécifié. Exemple: `%VAR% update 11 fête!` mets à jour l'évènement avec l'ID 11 en changant son nom en 'fête!'. Après ça le bot vous demandera si vous voulez mettre a jour la descriptions et/ou la date.",
       HelpRemove: "Enlève un ou plusieurs évènements spécifié.",
       HelpWelcome: "Bienvenue, je suis easyCal, le calendrier le plus simple!",
       All: "Tous",

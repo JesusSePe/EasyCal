@@ -17,29 +17,34 @@ module.exports = {
         }
         
         schedule.scheduleJob(row.id, date, function () {
+            let name = row.name;
             let description = row.description;
+            let user = row.user;
+            let language = row.language;
+            let channel_id = row.channel_id;
             if (row.type == "server") {
                 let server = row.server_id;
                 var EventEmbed = new Discord.MessageEmbed()
                     .setColor('#0099ff')
-                    .setTitle(Locale.getLocale(row.language, "NotiTitle", row.name))
-                    .setDescription(Locale.getLocale(row.language, "NotiDesc", description))
-                    .setFooter(Locale.getLocale(row.language, "NotiFooter"));
-                client.channels.fetch(`${row.channel_id}`)
+                    .setTitle(Locale.getLocale(language, "NotiTitle", name))
+                    .setDescription(Locale.getLocale(language, "NotiDesc", description))
+                    .setFooter(Locale.getLocale(language, "NotiFooter"));
+                client.channels.fetch(`${channel_id}`)
                     .catch() //In case Discord's API fails
-                    .then(channel => channel.send(EventEmbed).catch()); //Catch error in case bot can't send message
+                    .then(channel => channel.send({embeds: [EventEmbed]}).catch()); //Catch error in case bot can't send message
             }
             else {
                 var EventEmbed = new Discord.MessageEmbed()
                     .setColor('#0099ff')
-                    .setTitle(Locale.getLocale(row.language, "NotiTitle", row.name))
-                    .setDescription(Locale.getLocale(row.language, "NotiDesc", row.description))
-                    .setFooter(Locale.getLocale(row.language, "NotiFooter"));
-                client.users.fetch(`${row.user}`)
-                    .catch() //In case Discord's API fails
-                    .then(user => user.send(EventEmbed).catch()); //Catch error in case bot can't send message on DMs
+                    .setTitle(Locale.getLocale(language, "NotiTitle", name))
+                    .setDescription(Locale.getLocale(language, "NotiDesc", description))
+                    .setFooter(Locale.getLocale(language, "NotiFooter"));
+                console.log(`${user}`);
+                client.users.fetch(`${user}`)
+                    .then((user) => {user.send({ embeds: [EventEmbed] }).catch()}) //Catch error in case bot can't send message on DMs
+                    .catch(); //In case Discord's API fails
             }
-        })
+        });
     },
 
     /*##### CANCEL SCHEDULE JOB #####*/

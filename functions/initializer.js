@@ -23,7 +23,7 @@ module.exports = {
 
     /*##### Load events #####*/
     events: function(pool, schedule, client){
-        pool.query("SELECT events.id, name, description, eventDate, user, server_id, channel_id, type, time_difference FROM events join users on users.id = events.user where eventDate > addtime(sysdate(),'-20000')", function (err, rows, fields) {
+        pool.query("SELECT events.id, name, description, eventDate, user, server_id, channel_id, type, time_difference, language FROM events join users on users.id = events.user where eventDate > addtime(sysdate(),'-20000')", function (err, rows, fields) {
             if (err) { return; }
             rows.forEach(row => {
                 schedule.scheduler(row, client);

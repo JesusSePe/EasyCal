@@ -1,7 +1,8 @@
-const {Client, Intents} = require('discord.js'); // Load Discord JS modules
-const config = require("./config.json"); // Discord bot sensible variables
+
+const { Client, Intents } = require('discord.js'); // Load Discord JS modules
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES], partials: ["CHANNEL"] }); // Connect to Discord
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const config = require("./config.json"); // Discord bot sensible variables
 const commands = require("./functions/commands.js"); // All commands.
 const schedule = require("./functions/schedule.js"); // Schedule function.
 const Locale = require("./functions/getLocale.js"); // GetLocale function
@@ -10,7 +11,6 @@ const axios = require('axios').default; // library to make API calls
 var express = require('express'); // Node server (to listen on a certain port)
 var http = require('http'); // Extra module for our server
 const fs = require('fs');
-
 
 // Multiple variables
 const prefix = config.botPrefix;
@@ -29,14 +29,17 @@ const promisePool = pool.promise();
 client.on("ready", () => {
     init.guilds(client); // Display the amount of servers the bot is in.
     init.events(pool, schedule, client); // Load all the events on start
-    
-    
+
+
     // Slash commands initialization
-    const { REST } = require('@discordjs/rest');
-    const { Routes } = require('discord-api-types/v9');
-    const rest = new REST({ version: '9' }).setToken(config.BOT_TOKEN);
-    
-    init.slashLoader(Routes, config, rest);
+        const { REST } = require('@discordjs/rest');
+        const { Routes } = require('discord-api-types/v9');
+        const rest = new REST({ version: '9' }).setToken(config.BOT_TOKEN);
+
+        init.slashLoader(Routes, config, rest);
+    }
+
+
 })
 
 // guildCreate
@@ -58,15 +61,15 @@ client.on("guildDelete", function (guild) {
 
 // Control interactions (Slash commands)
 client.on('interactionCreate', interaction => {
-	if (!interaction.isCommand()) return; // Avoid those interactions that are not commands
+    if (!interaction.isCommand()) return; // Avoid those interactions that are not commands
 
-	if (interaction.commandName === 'ping') {
+    if (interaction.commandName === 'ping') {
         commands.ping(interaction, 'en');
-	} else if (interaction.commandName === 'version'){
+    } else if (interaction.commandName === 'version') {
         commands.version(interaction, ver, 'en');
-    } else if (interaction.commandName === 'events'){
+    } else if (interaction.commandName === 'events') {
         commands.events(interaction, promisePool, 'en');
-    } else if (interaction.commandName === 'invite'){
+    } else if (interaction.commandName === 'invite') {
         commands.invite(interaction, inv, 'en');
     }
 });
@@ -213,24 +216,24 @@ client.on("messageCreate", async function (message) {
 var app = express();
 var server = http.createServer(app);
 
-app.get('/cal/update_data', function(req, res){
+app.get('/cal/update_data', function (req, res) {
     try {
         try {
             schedule.cancelJob(req.query.id);
-        } catch {}
+        } catch { }
         schedule.scheduler(req.query, client);
         res.send('Roger that');
-        
+
     } catch {
         res.send('Error');
     }
 });
 
-app.get('/cal/remove', function(req, res){
+app.get('/cal/remove', function (req, res) {
     try {
-        try{
+        try {
             schedule.cancelJob(req.query.id);
-        }catch{}
+        } catch { }
         res.send('Roger that');
     } catch {
         res.send('Error');

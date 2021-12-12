@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-var dateFormat = require("dateformat"); // Dateformat package
+var dateFormat = import("dateformat"); // Dateformat package
 const schedule = require("./schedule.js"); // Schedule function.
 const Locale = require("./getLocale.js"); // GetLocale function
 const axios = require('axios').default; // library to make API calls

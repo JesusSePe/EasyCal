@@ -37,10 +37,7 @@ client.on("ready", () => {
         const rest = new REST({ version: '9' }).setToken(config.BOT_TOKEN);
 
         init.slashLoader(Routes, config, rest);
-    }
-
-
-})
+    });
 
 // guildCreate
 /* Emitted whenever the client joins a guild.

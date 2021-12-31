@@ -23,7 +23,6 @@ module.exports = {
             let language = row.language;
             let channel_id = row.channel_id;
             if (row.type == "server") {
-                let server = row.server_id;
                 var EventEmbed = new Discord.MessageEmbed()
                     .setColor('#0099ff')
                     .setTitle(Locale.getLocale(language, "NotiTitle", name))

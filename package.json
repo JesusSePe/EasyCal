@@ -1,6 +1,6 @@
 {
   "name": "easycal",
-  "version": "1.9",
+  "version": "2.1",
   "description": "Calendar bot for Discord",
   "main": "index.js",
   "scripts": {

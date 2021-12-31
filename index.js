@@ -89,7 +89,7 @@ client.on("messageCreate", async function (message) {
     // Adding user to DB if not exists
     let user = message.author.id;
     let sql = `INSERT INTO users (id, updated_at, created_at, language, time_difference) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE updated_at = ?`;
-    await promisePool.query(sql, [user, new Date, new Date, langDef, 404, new Date], function (error, results, fields) { });
+    await promisePool.query(sql, [user, new Date, new Date, langDef, 0, new Date], function (error, results, fields) { });
 
     // Get user language
     let [rows, fields] = await promisePool.query(`SELECT language FROM users WHERE id = ?`, [user]);
@@ -132,51 +132,7 @@ client.on("messageCreate", async function (message) {
 
     // Add event
     else if (command === "add") {
-        let [rows, fields] = await promisePool.query(`SELECT time_difference FROM users WHERE id = ?`, [user])
-        if (rows[0].time_difference == 404) {
-            message.channel.send(Locale.getLocale(lang, "Timezone1"))
-            message.channel.awaitMessages(m => m.author.id == message.author.id,
-                { max: 1, time: 60000, error: ['time'] })
-                .then(collected => {
-                    location = collected.first().content.replace(/ /g, "+");
-                    //https://api.ipgeolocation.io/timezone?apiKey=API_KEY&location=London,%20UK
-                    link = "https://api.ipgeolocation.io/timezone?apiKey=¿&location=_".replace(/_/g, location).replace(/¿/g, timezones);
-                    axios({
-                        method: 'get',
-                        url: link
-                    })
-
-                        .then(function (res) {
-                            // Parse
-                            var data = JSON.parse(JSON.stringify(res.data));
-                            try {
-                                var info = data.date_time_wti.split(' '); // Get time difference (+0200)
-                                var difference = info[5].replace(/0/g, ""); // Remove unnecessary characters (+2)
-
-                                let sql = `UPDATE users set time_difference = ${difference} where id = ${message.author.id}`;
-                                pool.query(sql, function (err, result, fields) {
-                                    if (err) {
-                                        return message.channel.send(Locale.getLocale(lang, "internalError"));
-                                    } else {
-                                        message.channel.send(Locale.getLocale(lang, "TimezoneUp"));
-                                        commands.add(message, args, pool, prefix, user, client, lang, "add");
-                                        return;
-                                    }
-                                });
-                            } catch {
-                                return message.channel.send(Locale.getLocale(lang, "TimezoneError"));
-                            }
-                        })
-                        .catch(function () {
-                            return message.channel.send(Locale.getLocale(lang, "TimezoneError"));
-                        })
-                })
-                .catch(collected => {
-                    return message.channel.send(Locale.getLocale(lang, "TimeExpired"));
-                })
-        } else {
-            commands.add(message, args, pool, prefix, user, client, lang, "add");
-        }
+        commands.add(message, args, pool, prefix, user, client, lang, "add");
     }
 
     // Show events

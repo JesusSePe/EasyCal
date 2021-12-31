@@ -267,17 +267,17 @@ module.exports = {
                     message.reply(Locale.getLocale(lang, "NoEvents"));
                 // If message is a normal command
                 } catch{
-                    message.channel.send(Locale.getLocale(lang, "NoEvents"))
+                    message.channel.send(Locale.getLocale(lang, "NoEvents"));
                 }
             // If there are events
             } else {
                 // If message is a slash command
                 try {
                     message.isCommand();
-                    message.reply({ embeds: [eventsEmbed] });
+                    message.reply({ embeds: [eventsEmbed] }).catch();
                 // If message is a normal command
                 } catch{
-                    message.channel.send({ embeds: [eventsEmbed] })
+                    message.channel.send({ embeds: [eventsEmbed] }).catch();
                 }
             }
         }
@@ -310,10 +310,10 @@ module.exports = {
                 // If message is a slash command
                 try {
                     message.isCommand();
-                    message.reply({ embeds: [eventsEmbed] });
+                    message.reply({ embeds: [eventsEmbed] }).catch();
                 // If message is a normal command
                 } catch{
-                    message.channel.send({ embeds: [eventsEmbed] })
+                    message.channel.send({ embeds: [eventsEmbed] }).catch();
                 }
             }
         }

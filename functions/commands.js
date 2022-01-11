@@ -290,12 +290,18 @@ module.exports = {
                 .setDescription(Locale.getLocale(lang, "PersonalEvents"))
                 .setFooter(Locale.getLocale(lang, "EventsFooter"));
             try {
-                var [results, fields] = await promisePool.query(`SELECT * FROM events WHERE user = ? AND server_id is null AND eventDate > addtime(sysdate(),'-20000') order by eventDate`, [message.author.id]);
+                try {
+                    message.isCommand();
+                    var usrId = message.user.id;
+                } catch (err){
+                    var usrId = message.author.id;
+                }
+                var [results, fields] = await promisePool.query(`SELECT * FROM events WHERE user = ? AND server_id is null AND eventDate > addtime(sysdate(),'-20000') order by eventDate`, [usrId]);
             } catch (err) {
                 console.log(err);
             }
             results.forEach(row => {
-                eventsEmbed.addField(`${dateFormat(row.eventDate, 'paddedShortDate')}: ${row.name}`, `${row.description}`);
+                eventsEmbed.addField(`id: ${row.id} ${dateFormat(row.eventDate, 'paddedShortDate')}: ${row.name}`, `${row.description}`);
             });
             if (results.length == 0) {
                 // If message is a slash command

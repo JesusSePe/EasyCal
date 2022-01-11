@@ -38,7 +38,8 @@ module.exports = {
             await rest.put(
                 Routes.applicationCommands(config.botID),
                 //{body : commands},
-                {body: [{name: 'invite', description: 'Returns an embed with a link to invite the bot to a new server'},
+                {body: [{name: 'events', description: 'Returns all events on this server or DM'},
+                        {name: 'invite', description: 'Returns an embed with a link to invite the bot to a new server'},
                         {name: 'ping', description: 'Get latency between users and bot'},
                         {name: 'version', description: 'Returns the current bot version'}]},
             );

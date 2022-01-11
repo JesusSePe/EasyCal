@@ -32,12 +32,12 @@ client.on("ready", () => {
 
 
     // Slash commands initialization
-        const { REST } = require('@discordjs/rest');
-        const { Routes } = require('discord-api-types/v9');
-        const rest = new REST({ version: '9' }).setToken(config.BOT_TOKEN);
+    const { REST } = require('@discordjs/rest');
+    const { Routes } = require('discord-api-types/v9');
+    const rest = new REST({ version: '9' }).setToken(config.BOT_TOKEN);
 
-        init.slashLoader(Routes, config, rest);
-    });
+    init.slashLoader(Routes, config, rest);
+});
 
 // guildCreate
 /* Emitted whenever the client joins a guild.

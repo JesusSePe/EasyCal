@@ -1,6 +1,6 @@
 {
   "name": "easycal",
-  "version": "2.1",
+  "version": "2.5",
   "description": "Calendar bot for Discord",
   "main": "index.js",
   "scripts": {
@@ -10,14 +10,12 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/rest": "^0.1.0-canary.0",
-    "axios": "^0.21.1",
     "dateformat": "^4.5.1",
     "discord-api-types": "^0.20.2",
     "discord.js": "^13.3.1",
     "express": "^4.17.1",
     "mysql2": "^2.2.5",
     "n": "^7.4.1",
-    "node-schedule": "^2.0.0",
-    "stable": "^0.1.8"
+    "node-schedule": "^2.0.0"
   }
 }
